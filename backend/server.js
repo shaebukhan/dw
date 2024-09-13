@@ -15,7 +15,12 @@ dotenv.config();
 connectDB();
 
 // CORS Middleware (with proper config)
-app.use(cors("*"));
+app.use(cors({
+    origin: 'https://dwfrontend-eight.vercel.app',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+
+}));
 
 // Middleware to parse URL-encoded and JSON bodies
 app.use(express.urlencoded({ extended: true }));
