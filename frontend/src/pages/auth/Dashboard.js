@@ -28,7 +28,7 @@ const Dashboard = () => {
         if (r && typeof r === 'object' && r._id) {
 
             try {
-                const url = `https://dw-phi-eight.vercel.app/api/v1/review/delete-review`;
+                const url = `http://localhost:8080/api/v1/review/delete-review`;
 
                 const res = await axios.post(url, { _id: r._id }, {
                     headers: {
@@ -69,7 +69,7 @@ const Dashboard = () => {
                                 <div className="card">
                                     <img
                                         style={{ height: "200px" }}
-                                        src={`https://dw-phi-eight.vercel.app/uploads/${r.image}`}
+                                        src={r.image}
                                         className="img-fluid"
                                         alt={r.name}
                                     />
@@ -79,7 +79,7 @@ const Dashboard = () => {
 
                                         <video className='w-100'
                                             style={{ height: "150px" }}
-                                            src={`https://dw-phi-eight.vercel.app/uploads/${r.video}`}
+                                            src={r.video}
                                             controls
                                         ></video>
                                     </div>
