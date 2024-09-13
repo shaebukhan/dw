@@ -1,53 +1,73 @@
-const fs = require("fs");
+const cloudinary = require("../utilis/cloudinaryConfig");
 const ReviewModel = require("../models/ReviewModel");
-const path = require("path");
+
 const addReviewController = async (req, res) => {
     try {
         const { name, profession } = req.body;
 
         // Check if both files (image and video) are uploaded
         if (!req.files || !req.files.image || !req.files.video) {
-            return res.status(200).send({
+            return res.status(400).send({
                 success: false,
-                message: "Image and video are required!"
+                message: "Image and video are required!",
             });
         }
-
-        const image = req.files.image[0].filename;
-        const video = req.files.video[0].filename;
 
         // Ensure other required fields are present
         if (!name || !profession) {
-            return res.status(200).send({
+            return res.status(400).send({
                 success: false,
-                message: "All Fields are Required!!"
+                message: "All fields are required!",
             });
         }
 
-        // Create a new review (assuming you have a ReviewModel)
-        const review = await ReviewModel.create({ name, profession, image, video });
-
-        res.status(201).send({
-            success: true,
-            message: "Data Added Successfully.",
-            review
+        // Upload image to Cloudinary
+        const uploadImagePromise = new Promise((resolve, reject) => {
+            const imageStream = cloudinary.uploader.upload_stream(
+                { resource_type: "image" },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result.secure_url); // Cloudinary URL
+                }
+            );
+            imageStream.end(req.files.image[0].buffer);
         });
 
+        // Upload video to Cloudinary
+        const uploadVideoPromise = new Promise((resolve, reject) => {
+            const videoStream = cloudinary.uploader.upload_stream(
+                { resource_type: "video" },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result.secure_url); // Cloudinary URL
+                }
+            );
+            videoStream.end(req.files.video[0].buffer);
+        });
+
+        // Wait for both uploads to complete
+        const [imageUrl, videoUrl] = await Promise.all([uploadImagePromise, uploadVideoPromise]);
+
+        // Create a new review
+        const review = await ReviewModel.create({ name, profession, image: imageUrl, video: videoUrl });
+
+        return res.status(201).send({
+            success: true,
+            message: "Data added successfully.",
+            review,
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).send({
             success: false,
-            message: "Internal server error"
+            message: "Internal server error",
         });
     }
 };
-
 const getReviewsController = async (req, res) => {
     try {
-        // Fetch all reviews from the database
         const reviews = await ReviewModel.find({});
 
-        // Check if there are reviews
         if (!reviews || reviews.length === 0) {
             return res.status(404).send({
                 success: false,
@@ -55,65 +75,58 @@ const getReviewsController = async (req, res) => {
             });
         }
 
-        // Send success response with reviews
         res.status(200).send({
             success: true,
             message: "Reviews fetched successfully",
             reviews,
         });
-
     } catch (error) {
         console.log(error);
-
-        // Handle server errors
         res.status(500).send({
             success: false,
             message: "Internal server error",
         });
     }
 };
-
 const deleteReviewController = async (req, res) => {
     try {
         const { _id } = req.body;
-        console.log(_id);
 
         // Find the review by its ID
         const review = await ReviewModel.findById(_id);
 
         if (!review) {
-            return res.status(200).json({
+            return res.status(404).json({
                 success: false,
-                message: "Review not found"
+                message: "Review not found",
             });
         }
 
-        // Delete the image and video files from the 'uploads' folder
-        const imagePath = path.join(__dirname, '..', 'uploads', review.image);
-        const videoPath = path.join(__dirname, '..', 'uploads', review.video);
+        // Extract public_id from the Cloudinary URLs if stored, or modify the URLs to match your structure
+        const imagePublicId = review.image.split("/").pop().split(".")[0]; // Extract Cloudinary public_id from image URL
+        const videoPublicId = review.video.split("/").pop().split(".")[0]; // Extract Cloudinary public_id from video URL
 
-        if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath); // Delete the image file
-        }
+        // Delete image from Cloudinary
+        await cloudinary.uploader.destroy(imagePublicId, { resource_type: "image" });
 
-        if (fs.existsSync(videoPath)) {
-            fs.unlinkSync(videoPath); // Delete the video file
-        }
+        // Delete video from Cloudinary
+        await cloudinary.uploader.destroy(videoPublicId, { resource_type: "video" });
 
         // Remove the review from the database
         await ReviewModel.findByIdAndDelete(_id);
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
-            message: "Review deleted successfully"
+            message: "Review deleted successfully",
         });
     } catch (error) {
         console.error(error);
         return res.status(500).json({
             success: false,
-            message: "Internal server error"
+            message: "Internal server error",
         });
     }
 };
+
 
 module.exports = { addReviewController, getReviewsController, deleteReviewController };
