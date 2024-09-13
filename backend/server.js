@@ -39,7 +39,9 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/", (req, res) => {
     res.send("Hello World");
 });
-
+app.get("/testing", (req, res) => {
+    res.send(" 1 2 3 & boom guys !");
+});
 // Auth routes
 const authRoutes = require("./routes/authRoute");
 app.use("/api/v1/auth", authRoutes);
