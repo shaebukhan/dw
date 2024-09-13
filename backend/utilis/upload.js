@@ -1,14 +1,7 @@
 const multer = require('multer');
-const path = require('path');
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/'); // Folder where files will be stored
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname)); // Add timestamp to avoid filename conflicts
-    }
-});
+// Use memory storage to temporarily hold the files
+const storage = multer.memoryStorage();
 
 // File filter to validate image and video MIME types
 const fileFilter = (req, file, cb) => {
@@ -19,8 +12,9 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
+// Configure multer
 const upload = multer({
-    storage: storage,
+    storage: storage, // Store files temporarily in memory
     fileFilter: fileFilter
 });
 
