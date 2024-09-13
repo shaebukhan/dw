@@ -5,6 +5,8 @@ const morgan = require("morgan");
 const connectDB = require("./config/db");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+app.use(express.urlencoded({ extended: true }));
+
 app.use(cors({
   origin: '*', // Allow all origins. Replace '*' with specific origins if needed
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
