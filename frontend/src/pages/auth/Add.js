@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../Context/authContext';
+import Loader from '../../components/Loader';
 
 const Add = () => {
     const navigate = useNavigate();
@@ -11,7 +13,9 @@ const Add = () => {
     const [profession, setProfession] = useState("");
     const [image, setImage] = useState(null);
     const [video, setVideo] = useState(null);
+    const [loading, setLoading] = useState(false);
 
+    const [auth, setAuth] = useAuth();
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -27,6 +31,8 @@ const Add = () => {
         formData.append("profession", profession);
         formData.append("image", image);
         formData.append("video", video);
+
+        setLoading(true);
 
         try {
             // Send POST request to backend
@@ -54,12 +60,23 @@ const Add = () => {
             console.log(error);
 
             toast.error("Failed to add data. Please try again.");
+        } finally {
+            setLoading(false); // Hide loader
         }
     };
+
+    const isLoggedIn = auth.token;
+
+    useEffect(() => {
+        if (!isLoggedIn) {
+            navigate('/login'); // Redirect to login if no token
+        }
+    }, [isLoggedIn, navigate]);
 
     return (
         <>
             <Navbar />
+            {loading && <Loader />}
             <div className="mt-top"></div>
             <div className="m-h-100">
                 <div className="container pt-5">
