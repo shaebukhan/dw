@@ -950,6 +950,11 @@ a {
   cursor: pointer;
 }
 
+.review-card-img-main {
+  height: 213px;
+  border-radius: 15px;
+}
+
 .playvideo-btn {
   position: absolute;
   margin: 0px auto;
