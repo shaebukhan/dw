@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+ import React, { useState, useRef, useEffect } from 'react';
 import LightStar from "../assets/images/star-light.svg";
 import BoldStar from "../assets/images/star-sm.svg";
 import "slick-carousel/slick/slick.css";
@@ -109,6 +109,7 @@ const ClientReview = () => {
                                     key={r._id}
                                     image={r.image}
                                     title={r.name}
+                                    stars={r.rating}
                                     text={r.profession}
                                     onPlayVideo={() => showModal(r.video)} // Correct video
                                 />
