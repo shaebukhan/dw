@@ -107,10 +107,10 @@ const ClientReview = () => {
                             reviews.map((r) => (
                                 <ReviewCard
                                     key={r._id}
-                                    image={`http://localhost:8080/uploads/${r.image}`}
+                                    image={r.image}
                                     title={r.name}
                                     text={r.profession}
-                                    onPlayVideo={() => showModal(`http://localhost:8080/uploads/${r.video}`)} // Correct video
+                                    onPlayVideo={() => showModal(r.video)} // Correct video
                                 />
                             ))
                         ) : (
