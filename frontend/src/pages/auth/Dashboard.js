@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
-
+import Rating from 'react-rating-stars-component';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Loader from '../../components/Loader';
 
 const Dashboard = () => {
     const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const getAllReviews = async () => {
         try {
@@ -26,6 +28,7 @@ const Dashboard = () => {
 
     const handleDelete = async (r) => {
         if (r && typeof r === 'object' && r._id) {
+            setLoading(true);
 
             try {
                 const url = `http://localhost:8080/api/v1/review/delete-review`;
@@ -46,6 +49,9 @@ const Dashboard = () => {
                 console.error(error);
                 toast.error("Something went wrong !!");
             }
+            finally {
+                setLoading(false); // Hide loader
+            }
         } else {
             console.error('Invalid p object:', r);
         }
@@ -54,6 +60,7 @@ const Dashboard = () => {
     return (
         <div>
             <Navbar />
+            {loading && <Loader />}
             <div className="mt-top"></div>
             <div className="container pt-5">
                 <div className="d-flex justify-content-between mb-4">
@@ -76,8 +83,13 @@ const Dashboard = () => {
                                     <div className="card-body">
                                         <h5 className="card-title">{r.name}</h5>
                                         <h5 className="card-title mb-3">{r.profession}</h5>
-
-                                        <video className='w-100'
+                                        <Rating
+                                            count={5}
+                                            value={r.rating}
+                                            size={24}
+                                            activeColor="#ffd700"
+                                        />
+                                        <video className='w-100 mt-2'
                                             style={{ height: "150px" }}
                                             src={r.video}
                                             controls
