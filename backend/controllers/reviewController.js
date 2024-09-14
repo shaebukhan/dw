@@ -1,9 +1,9 @@
-const cloudinary = require("../utilis/cloudinaryConfig");
+ const cloudinary = require("../utilis/cloudinaryConfig");
 const ReviewModel = require("../models/ReviewModel");
 
 const addReviewController = async (req, res) => {
     try {
-        const { name, profession } = req.body;
+        const { name, profession, rating } = req.body;
 
         // Check if both files (image and video) are uploaded
         if (!req.files || !req.files.image || !req.files.video) {
@@ -14,7 +14,7 @@ const addReviewController = async (req, res) => {
         }
 
         // Ensure other required fields are present
-        if (!name || !profession) {
+        if (!name || !profession || !rating) {
             return res.status(400).send({
                 success: false,
                 message: "All fields are required!",
@@ -49,7 +49,7 @@ const addReviewController = async (req, res) => {
         const [imageUrl, videoUrl] = await Promise.all([uploadImagePromise, uploadVideoPromise]);
 
         // Create a new review
-        const review = await ReviewModel.create({ name, profession, image: imageUrl, video: videoUrl });
+        const review = await ReviewModel.create({ name, profession, image: imageUrl, video: videoUrl, rating });
 
         return res.status(201).send({
             success: true,
