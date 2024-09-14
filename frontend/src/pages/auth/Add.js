@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../Context/authContext';
 import Loader from '../../components/Loader';
+import Rating from 'react-rating-stars-component';
 
 const Add = () => {
     const navigate = useNavigate();
@@ -14,8 +15,9 @@ const Add = () => {
     const [image, setImage] = useState(null);
     const [video, setVideo] = useState(null);
     const [loading, setLoading] = useState(false);
-
+    const [rating, setRating] = useState(0); // For star rating
     const [auth, setAuth] = useAuth();
+
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,6 +33,7 @@ const Add = () => {
         formData.append("profession", profession);
         formData.append("image", image);
         formData.append("video", video);
+        formData.append("rating", rating); // Add rating to formData
 
         setLoading(true);
 
@@ -50,6 +53,7 @@ const Add = () => {
                 setProfession("");
                 setImage(null);
                 setVideo(null);
+                setRating(0); // Reset rating
                 navigate("/dashboard/admin");
             } else {
                 toast.error(response.data.message);
@@ -118,6 +122,16 @@ const Add = () => {
                                     type="file"
                                     accept='video/*'
                                     onChange={(e) => setVideo(e.target.files[0])}
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label>Ratings</label>
+                                <Rating
+                                    count={5}
+                                    value={rating}
+                                    onChange={(newRating) => setRating(newRating)} // Corrected handler
+                                    size={24}
+                                    activeColor="#ffd700"
                                 />
                             </div>
                             <button type='submit' className='btn btn-primary'>Add Data</button>
